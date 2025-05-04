@@ -167,7 +167,11 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Masukkan email" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="Masukkan email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -186,20 +190,35 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
                         <FormControl>
                           <Button
                             variant={"outline"}
-                            className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                            className={cn(
+                              "pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
                           >
-                            {field.value ? format(field.value, "dd MMMM yyyy") : <span>Pilih tanggal</span>}
+                            {field.value ? (
+                              format(field.value, "dd MMMM yyyy")
+                            ) : (
+                              <span>Pilih tanggal</span>
+                            )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
+                        <input
+                          type="date"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={
+                            field.value ? format(field.value, "yyyy-MM-dd") : ""
+                          }
+                          onChange={(e) => {
+                            const date = e.target.value
+                              ? new Date(e.target.value)
+                              : null;
+                            field.onChange(date);
+                          }}
+                          max={format(new Date(), "yyyy-MM-dd")}
+                          min="1900-01-01"
                         />
                       </PopoverContent>
                     </Popover>
@@ -234,7 +253,10 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
                 <FormItem>
                   <FormLabel>Alamat KTP</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Masukkan alamat sesuai KTP" {...field} />
+                    <Textarea
+                      placeholder="Masukkan alamat sesuai KTP"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -248,7 +270,10 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
                 <FormItem>
                   <FormLabel>Alamat Domisili</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Masukkan alamat domisili saat ini" {...field} />
+                    <Textarea
+                      placeholder="Masukkan alamat domisili saat ini"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -262,7 +287,10 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
                 <FormItem>
                   <FormLabel>Pendidikan Terakhir</FormLabel>
                   <FormControl>
-                    <Input placeholder="Contoh: S1 Teknik Informatika" {...field} />
+                    <Input
+                      placeholder="Contoh: S1 Teknik Informatika"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -292,9 +320,12 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
         {step === 3 && (
           <>
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">Upload Bukti Pembayaran</h3>
+              <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
+                Upload Bukti Pembayaran
+              </h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Silakan upload bukti transfer pembayaran kelas. Format yang diterima: JPG, PNG, atau PDF (maks. 5MB)
+                Silakan upload bukti transfer pembayaran kelas. Format yang
+                diterima: JPG, PNG, atau PDF (maks. 5MB)
               </p>
 
               <FormField
@@ -303,11 +334,16 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
                 render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormControl>
-                      <FileUploader value={value} onChange={onChange} accept=".jpg,.jpeg,.png,.pdf" maxSize={5} />
+                      <FileUploader
+                        value={value}
+                        onChange={onChange}
+                        accept=".jpg,.jpeg,.png,.pdf"
+                        maxSize={5}
+                      />
                     </FormControl>
                     <FormDescription>
-                      Pastikan bukti pembayaran terlihat jelas dan menampilkan informasi tanggal, nominal, dan rekening
-                      tujuan.
+                      Pastikan bukti pembayaran terlihat jelas dan menampilkan
+                      informasi tanggal, nominal, dan rekening tujuan.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -316,12 +352,19 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
             </div>
 
             <div className="space-y-2 rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 bg-zinc-50 dark:bg-zinc-900">
-              <h4 className="font-medium text-zinc-900 dark:text-zinc-50">Perhatian:</h4>
+              <h4 className="font-medium text-zinc-900 dark:text-zinc-50">
+                Perhatian:
+              </h4>
               <ul className="list-disc list-inside text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
                 <li>Pastikan semua data yang Anda masukkan sudah benar</li>
-                <li>Pendaftaran akan diproses setelah pembayaran diverifikasi</li>
+                <li>
+                  Pendaftaran akan diproses setelah pembayaran diverifikasi
+                </li>
                 <li>Proses verifikasi membutuhkan waktu maksimal 1x24 jam</li>
-                <li>Anda akan mendapatkan notifikasi melalui email setelah pendaftaran diverifikasi</li>
+                <li>
+                  Anda akan mendapatkan notifikasi melalui email setelah
+                  pendaftaran diverifikasi
+                </li>
               </ul>
             </div>
           </>
@@ -344,12 +387,14 @@ export function RegistrationForm({ classId, className }: RegistrationFormProps) 
               className="ml-auto bg-gradient-to-r from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 text-white dark:from-zinc-200 dark:to-zinc-50 dark:text-zinc-900 dark:hover:from-zinc-100 dark:hover:to-zinc-200"
               disabled={isSubmitting}
             >
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Kirim Pendaftaran
             </Button>
           )}
         </div>
       </form>
     </Form>
-  )
+  );
 }
