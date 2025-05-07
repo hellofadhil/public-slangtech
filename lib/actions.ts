@@ -11,7 +11,7 @@ const firebaseConfig = {
   authDomain: "training-b34f7.firebaseapp.com",
   databaseURL: "https://training-b34f7-default-rtdb.firebaseio.com",
   projectId: "training-b34f7",
-  storageBucket: "training-b34f7.firebasestorage.app",
+  storageBucket: "training-b34f7.appspot.com",
   messagingSenderId: "946439855027",
   appId: "1:946439855027:web:6176004d1a919aa5be09c6",
   measurementId: "G-77LH0CR4EH",
@@ -26,9 +26,10 @@ try {
   database = getDatabase(app)
 } catch (error) {
   console.error("Firebase initialization error:", error)
+  throw new Error("Failed to initialize Firebase. Please try again later.")
 }
 
-interface RegistrationData {
+interface BaseRegistrationData {
   name: string
   phoneNumber: string
   email: string
@@ -38,13 +39,24 @@ interface RegistrationData {
   currentResidence: string
   reason: string
   lastEducation: string
-  classId: string
   paymentProof: File
+  classId?: string
+  eventId?: string
 }
 
-export async function registerParticipant(data: RegistrationData, type: string) {
+export async function registerParticipant(
+  data: BaseRegistrationData,
+  type: "class" | "event"
+) {
   try {
-    // Create participant entry
+    if (!app || !database) {
+      throw new Error("Database connection not established")
+    }
+
+    if (!data.paymentProof) {
+      throw new Error("Payment proof is required")
+    }
+
     const participantsRef = ref(database, "participants")
     const newParticipantRef = push(participantsRef)
     const participantId = newParticipantRef.key
@@ -54,17 +66,18 @@ export async function registerParticipant(data: RegistrationData, type: string) 
     }
 
     const now = Date.now()
-
-    // Upload payment proof to Vercel Blob
     const fileExtension = data.paymentProof.name.split(".").pop()
     const fileName = `payment_proof_${participantId}_${now}.${fileExtension}`
 
-    // Upload to Vercel Blob
-    const blob = await put(fileName, data.paymentProof, {
-      access: "public",
-    })
+    let blob
+    try {
+      blob = await put(fileName, data.paymentProof, { access: "public" })
+    } catch (uploadError) {
+      console.error("File upload error:", uploadError)
+      throw new Error("Failed to upload payment proof")
+    }
 
-    const participant: Omit<Participant, "id"> = {
+    const participantData: Omit<Participant, "id"> = {
       name: data.name,
       phoneNumber: data.phoneNumber,
       email: data.email,
@@ -75,21 +88,20 @@ export async function registerParticipant(data: RegistrationData, type: string) 
       reason: data.reason,
       status: "pending",
       lastEducation: data.lastEducation,
-      classId: data.classId,
       createdAt: now,
       updatedAt: now,
-      type
+      type,
+      ...(type === "class" ? { classId: data.classId! } : { eventId: data.eventId! }),
     }
 
-    await set(newParticipantRef, participant)
+    await set(newParticipantRef, participantData)
 
-    // Create payment file entry
     const paymentFilesRef = ref(database, "payment_files")
     const newPaymentFileRef = push(paymentFilesRef)
 
     const paymentFile: Omit<PaymentFile, "id"> = {
       participantId,
-      filePath: blob.url, // Use the Vercel Blob URL
+      filePath: blob.url,
       verified: false,
       verificationStatus: "pending",
     }
@@ -100,6 +112,8 @@ export async function registerParticipant(data: RegistrationData, type: string) 
     return { success: true, participantId }
   } catch (error) {
     console.error("Error registering participant:", error)
-    throw new Error("Failed to register participant")
+    throw error instanceof Error
+      ? error
+      : new Error("Failed to register participant")
   }
 }

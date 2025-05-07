@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app"
 import { getDatabase, ref, get } from "firebase/database"
-import type { Class } from "./types"
+import type { Class, Event } from "./types"
 
 const firebaseConfig = {
   apiKey: "AIzaSyCDXGe7qYScSvBbT0ed44vfd7yj6GmGcoM",
@@ -108,5 +108,64 @@ export async function getFeaturedClasses(): Promise<Class[]> {
   } catch (error) {
     console.error("Error fetching featured classes:", error)
     return []
+  }
+}
+
+
+export async function getEvents(): Promise<Event[]> {
+  try {
+    const eventsRef = ref(database, "events");
+    const snapshot = await get(eventsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+
+      // If data is an object with keys, convert to array
+      if (typeof data === "object" && data !== null) {
+        if (Array.isArray(data)) {
+          return data.filter(Boolean); // Filter out null/undefined entries
+        } else {
+          const events = Object.keys(data).map((key) => ({
+            id: key,
+            ...data[key],
+          }));
+
+          // For relational fields, we'll just ensure the name fields exist
+          // The actual names should be populated when the event is created/updated
+          return events.map(event => ({
+            ...event,
+            categoryName: event.categoryName || '',
+            trainerName: event.trainerName || '',
+            partnerName: event.partnerName || '',
+          }));
+        }
+      }
+    }
+
+    // Return empty array if no data
+    return [];
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return [];
+  }
+}
+
+
+export async function getEventById(id: string): Promise<Event | null> {
+  try {
+    const eventRef = ref(database, `events/${id}`)
+    const snapshot = await get(eventRef)
+
+    if (snapshot.exists()) {
+      return {
+        id,
+        ...snapshot.val(),
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.error(`Error fetching event with id ${id}:`, error)
+    return null
   }
 }
