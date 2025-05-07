@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Footer from '@/components/footer'
+import { Navbar } from '@/components/navbar'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: "SlangTech | Kelas Pelatihan Profesional",
+  description:
+    "SlangTech menyediakan kelas pelatihan profesional untuk meningkatkan keterampilan dan karir Anda. Daftar sekarang dan mulai perjalanan belajar Anda.",
 }
 
 export default function RootLayout({
@@ -14,7 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Navbar/>
+        {children}
+        <Footer/>
+        </body>
     </html>
   )
 }

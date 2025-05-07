@@ -49,10 +49,11 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          <NavLink href="#" label="Beranda" onClick={handleLinkClick} />
-          <NavLink href="#kelas" label="Kelas" onClick={handleLinkClick} />
-          <NavLink href="#testimonials" label="Testimonial" onClick={handleLinkClick} />
-          <NavLink href="#" label="Kontak" onClick={handleLinkClick} />
+          <NavLink href="/" label="Beranda" onClick={handleLinkClick} />
+          <NavLink href="/#kelas" label="Kelas" onClick={handleLinkClick} />
+          <NavLink href="/event" label="Event" onClick={handleLinkClick} />
+          <NavLink href="/#testimonials" label="Testimonial" onClick={handleLinkClick} />
+          <NavLink href="/" label="Kontak" onClick={handleLinkClick} />
         </nav>
 
         {/* Mobile Menu Button */}

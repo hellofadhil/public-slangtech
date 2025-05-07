@@ -3,6 +3,13 @@
 import ClassCard from "./class-card"
 import { motion } from "framer-motion"
 import { Class } from "@/lib/types"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 interface ClassGridProps {
   classes: Class[]
@@ -21,17 +28,29 @@ export default function ClassGrid({ classes }: ClassGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      {classes.map((classItem, index) => (
-        <motion.div
-          key={classItem.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: index * 0.1 }}
-        >
-          <ClassCard classItem={classItem} />
-        </motion.div>
-      ))}
-    </div>
+    <Carousel
+      opts={{ align: "start", loop: true }}
+      className="w-full"
+    >
+      <CarouselContent className="-ml-4">
+        {classes.map((classItem, index) => (
+          <CarouselItem
+            key={classItem.id}
+            className="pl-4 w-full sm:basis-full md:basis-1/2 lg:basis-1/3"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              className="h-full"
+            >
+              <ClassCard classItem={classItem} />
+            </motion.div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="left-1" />
+      <CarouselNext className="right-1" />
+    </Carousel>
   )
 }

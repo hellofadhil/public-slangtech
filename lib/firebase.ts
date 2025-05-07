@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app"
-import { getDatabase, ref, get } from "firebase/database"
+import { getDatabase, ref, get, Database } from "firebase/database"
 import type { Class, Event } from "./types"
 
 const firebaseConfig = {
@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let app
-let database
+let database: Database
 
 try {
   app = initializeApp(firebaseConfig)
@@ -26,32 +26,38 @@ try {
 
 export async function getClasses(): Promise<Class[]> {
   try {
-    const classesRef = ref(database, "classes")
-    const snapshot = await get(classesRef)
+    const classesRef = ref(database, "classes");
+    const snapshot = await get(classesRef);
 
     if (snapshot.exists()) {
-      const data = snapshot.val()
+      const data = snapshot.val();
 
-      // If data is an object with keys, convert to array
+      const allowedStatuses: Class["status"][] = ["active", "upcoming", "on going"];
+
+      const filterValidStatus = (classItem: Class) =>
+        allowedStatuses.includes(classItem.status);
+
       if (typeof data === "object" && data !== null) {
         if (Array.isArray(data)) {
-          return data.filter(Boolean) // Filter out null/undefined entries
+          return data.filter(Boolean).filter(filterValidStatus);
         } else {
-          return Object.keys(data).map((key) => ({
-            id: key,
-            ...data[key],
-          }))
+          return Object.keys(data)
+            .map((key) => ({
+              id: key,
+              ...data[key],
+            }))
+            .filter(filterValidStatus);
         }
       }
     }
 
-    // Return empty array if no data
-    return []
+    return [];
   } catch (error) {
-    console.error("Error fetching classes:", error)
-    return []
+    console.error("Error fetching classes:", error);
+    return [];
   }
 }
+
 
 export async function getClassById(id: string): Promise<Class | null> {
   try {

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import type { Class } from "./types"
+import type { Class, Event } from "./types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -44,6 +44,11 @@ export function getUniqueCategories(classes: Class[]): string[] {
   return [...new Set(categories)].filter(Boolean).sort()
 }
 
+export function getUniqueCategoriesEvent(classes: Event[]): string[] {
+  const categories = classes.map((classItem) => classItem.categoryName)
+  return [...new Set(categories)].filter(Boolean).sort()
+}
+
 export function filterClasses(
   classes: Class[],
   searchParams?: { query?: string; categories?: string; type?: string; status?: string },
@@ -78,6 +83,44 @@ export function filterClasses(
 
     // Filter by status
     if (searchParams.status && classItem.status !== searchParams.status) {
+      return false
+    }
+
+    return true
+  })
+}
+
+export function filterEvents(
+  events: Event[],
+  searchParams?: { query?: string; categories?: string; status?: string }
+) {
+  if (!events || !searchParams) return events
+
+  return events.filter((event) => {
+    // Filter by search query
+    if (searchParams.query) {
+      const query = searchParams.query.toLowerCase()
+      const matchesTitle = event.title.toLowerCase().includes(query)
+      const matchesDescription = event.description.toLowerCase().includes(query)
+      const matchesCategory = event.categoryName.toLowerCase().includes(query)
+      const matchesTrainer = event.trainerName.toLowerCase().includes(query)
+      const matchesPartner = event.partnerName?.toLowerCase().includes(query)
+
+      if (!(matchesTitle || matchesDescription || matchesCategory || matchesTrainer || matchesPartner)) {
+        return false
+      }
+    }
+
+    // Filter by categories
+    if (searchParams.categories) {
+      const selectedCategories = searchParams.categories.split(",").filter(Boolean)
+      if (selectedCategories.length > 0 && !selectedCategories.includes(event.categoryId)) {
+        return false
+      }
+    }
+
+    // Filter by status
+    if (searchParams.status && event.status !== searchParams.status) {
       return false
     }
 
