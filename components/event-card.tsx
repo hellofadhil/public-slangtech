@@ -34,9 +34,12 @@ export default function EventCard({ event }: EventCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const statusColors = {
-    upcoming: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-    ongoing: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-    completed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+    upcoming:
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    ongoing:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+    completed:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
     cancelled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
   };
 
@@ -69,10 +72,7 @@ export default function EventCard({ event }: EventCardProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
             <div className="absolute top-3 right-3">
-              <Badge
-                variant="secondary"
-                className={statusColors[event.status]}
-              >
+              <Badge variant="secondary" className={statusColors[event.status]}>
                 {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
               </Badge>
             </div>
@@ -135,10 +135,15 @@ export default function EventCard({ event }: EventCardProps) {
                 className={`w-full bg-gradient-to-r from-zinc-800 to-zinc-900 hover:from-zinc-700 hover:to-zinc-800 text-white dark:from-zinc-200 dark:to-zinc-50 dark:text-zinc-900 dark:hover:from-zinc-100 dark:hover:to-zinc-200 transition-all duration-300 ${
                   isHovered ? "transform scale-105" : ""
                 }`}
-                disabled={event.status === 'completed' || event.status === 'cancelled'}
+                disabled={
+                  event.status === "completed" || event.status === "cancelled"
+                }
               >
-                {event.status === 'completed' ? 'Event Selesai' : 
-                 event.status === 'cancelled' ? 'Event Dibatalkan' : 'Daftar Sekarang'}
+                {event.status === "completed"
+                  ? "Event Selesai"
+                  : event.status === "cancelled"
+                  ? "Event Dibatalkan"
+                  : "Daftar Sekarang"}
               </Button>
             </Link>
           </CardFooter>
@@ -146,17 +151,14 @@ export default function EventCard({ event }: EventCardProps) {
       </motion.div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{event.title}</DialogTitle>
             <DialogDescription>{event.categoryName}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex gap-4">
-              <Badge
-                variant="secondary"
-                className={statusColors[event.status]}
-              >
+              <Badge variant="secondary" className={statusColors[event.status]}>
                 {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
               </Badge>
               <Badge

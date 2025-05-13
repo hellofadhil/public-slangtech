@@ -77,9 +77,10 @@ export function Navbar() {
             >
               <div className="container py-4 flex flex-col space-y-4">
                 <MobileNavLink href="#" label="Beranda" onClick={handleLinkClick} />
-                <MobileNavLink href="#kelas" label="Kelas" onClick={handleLinkClick} />
-                <MobileNavLink href="#testimonials" label="Testimonial" onClick={handleLinkClick} />
-                <MobileNavLink href="#" label="Kontak" onClick={handleLinkClick} />
+                <MobileNavLink href="/#kelas" label="Kelas" onClick={handleLinkClick} />
+                <MobileNavLink href="/event" label="Event" onClick={handleLinkClick} />
+                <MobileNavLink href="/#testimonials" label="Testimonial" onClick={handleLinkClick} />
+                <MobileNavLink href="/#" label="Kontak" onClick={handleLinkClick} />
               </div>
             </motion.div>
           )}

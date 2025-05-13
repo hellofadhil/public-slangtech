@@ -42,6 +42,42 @@ interface BaseRegistrationData {
   paymentProof: File
   classId?: string
   eventId?: string
+  status_current?: string
+}
+
+interface BaseRegistrationDataEvent {
+  name: string
+  phoneNumber: string
+  email: string
+  birthDate: number
+  birthPlace: string
+  address: string
+  currentResidence: string
+  reason: string
+  lastEducation: string
+  classId?: string
+  eventId?: string
+  status_current?: string
+}
+
+interface ParticipantEvent {
+  id: string
+  name: string
+  phoneNumber: string
+  email: string
+  birthDate: number
+  birthPlace: string
+  address: string
+  currentResidence: string
+  reason: string
+  lastEducation: string
+  status_current: string
+  status: "pending" | "accepted" | "rejected"
+  createdAt: number
+  updatedAt: number
+  type: "class" | "event"
+  classId?: string
+  eventId?: string
 }
 
 export async function registerParticipant(
@@ -107,6 +143,55 @@ export async function registerParticipant(
     }
 
     await set(newPaymentFileRef, paymentFile)
+
+    revalidatePath("/")
+    return { success: true, participantId }
+  } catch (error) {
+    console.error("Error registering participant:", error)
+    throw error instanceof Error
+      ? error
+      : new Error("Failed to register participant")
+  }
+}
+
+export async function registerParticipantEvent(
+  data: BaseRegistrationDataEvent,
+  type: "class" | "event"
+) {
+  try {
+    if (!app || !database) {
+      throw new Error("Database connection not established")
+    }
+
+    const participantsRef = ref(database, "participants")
+    const newParticipantRef = push(participantsRef)
+    const participantId = newParticipantRef.key
+
+    if (!participantId) {
+      throw new Error("Failed to generate participant ID")
+    }
+
+    const now = Date.now()
+
+    const participantData: Omit<ParticipantEvent, "id"> = {
+      name: data.name,
+      phoneNumber: data.phoneNumber,
+      email: data.email,
+      birthDate: data.birthDate,
+      birthPlace: data.birthPlace,
+      address: data.address,
+      currentResidence: data.currentResidence,
+      reason: data.reason,
+      lastEducation: data.lastEducation,
+      status_current: data.status_current || "pending",
+      status: "accepted", // Automatically set to accepted
+      createdAt: now,
+      updatedAt: now,
+      type,
+      ...(type === "class" ? { classId: data.classId } : { eventId: data.eventId }),
+    }
+
+    await set(newParticipantRef, participantData)
 
     revalidatePath("/")
     return { success: true, participantId }

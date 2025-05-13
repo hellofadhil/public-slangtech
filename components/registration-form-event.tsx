@@ -16,8 +16,14 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
-import { registerParticipant } from "@/lib/actions"
-import { FileUploader } from "./file-uploader"
+import { registerParticipant, registerParticipantEvent } from "@/lib/actions"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nama harus minimal 3 karakter" }),
@@ -28,16 +34,10 @@ const formSchema = z.object({
   address: z.string().min(5, { message: "Alamat wajib diisi" }),
   currentResidence: z.string().min(5, { message: "Alamat domisili wajib diisi" }),
   lastEducation: z.string().min(2, { message: "Pendidikan terakhir wajib diisi" }),
-  reason: z.string().min(10, { message: "Alasan mengikuti kelas wajib diisi" }),
-  paymentProof: z
-    .instanceof(File, { message: "Bukti pembayaran wajib diupload" })
-    .refine(
-      (file) => file.size <= 5000000, // 5MB
-      { message: "Ukuran file maksimal 5MB" },
-    )
-    .refine((file) => ["image/jpeg", "image/png", "image/jpg", "application/pdf"].includes(file.type), {
-      message: "Format file harus JPG, PNG, atau PDF",
-    }),
+  reason: z.string().min(10, { message: "Alasan mengikuti event wajib diisi" }),
+  status_current: z.string( {
+    required_error: "Status saat ini wajib dipilih",
+  }),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -63,6 +63,7 @@ export function RegistrationFormEvent({ eventId, className }: RegistrationFormPr
       currentResidence: "",
       lastEducation: "",
       reason: "",
+      status_current: "",
     },
   })
 
@@ -77,22 +78,13 @@ export function RegistrationFormEvent({ eventId, className }: RegistrationFormPr
         ...data,
         birthDate: birthDateTimestamp,
         eventId: eventId,
-        // Make sure all required RegistrationData fields are included
       };
 
-      await registerParticipant(registrationData, "event");
-
-      // Submit data to server action
-      // await registerParticipant({
-      //   ...data,
-      //   birthDate: birthDateTimestamp,
-      //   classId,
-      //   "class"
-      // })
+      await registerParticipantEvent(registrationData, "event");
 
       toast({
         title: "Pendaftaran Berhasil!",
-        description: "Data Anda telah berhasil dikirim. Kami akan memverifikasi pembayaran Anda dalam 1x24 jam.",
+        description: "Data Anda telah berhasil dikirim.",
       })
 
       // Redirect to success page
@@ -113,7 +105,7 @@ export function RegistrationFormEvent({ eventId, className }: RegistrationFormPr
     const fieldsToValidate =
       step === 1
         ? ["name", "phoneNumber", "email", "birthDate", "birthPlace"]
-        : ["address", "currentResidence", "lastEducation", "reason"]
+        : ["address", "currentResidence", "lastEducation", "reason", "status_current"]
 
     const result = await form.trigger(fieldsToValidate as any)
     if (result) {
@@ -299,10 +291,33 @@ export function RegistrationFormEvent({ eventId, className }: RegistrationFormPr
 
             <FormField
               control={form.control}
+              name="status_current"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status Saat Ini</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih status saat ini" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Pelajar">Pelajar</SelectItem>
+                      <SelectItem value="CPMI">CPMI</SelectItem>
+                      <SelectItem value="PMI">PMI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Alasan Mengikuti Kelas</FormLabel>
+                  <FormLabel>Alasan Mengikuti Event</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Ceritakan alasan Anda ingin mengikuti kelas ini"
@@ -317,59 +332,6 @@ export function RegistrationFormEvent({ eventId, className }: RegistrationFormPr
           </>
         )}
 
-        {step === 3 && (
-          <>
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
-                Upload Bukti Pembayaran
-              </h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Silakan upload bukti transfer pembayaran kelas. Format yang
-                diterima: JPG, PNG, atau PDF (maks. 5MB)
-              </p>
-
-              <FormField
-                control={form.control}
-                name="paymentProof"
-                render={({ field: { value, onChange, ...fieldProps } }) => (
-                  <FormItem>
-                    <FormControl>
-                      <FileUploader
-                        value={value}
-                        onChange={onChange}
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        maxSize={5}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Pastikan bukti pembayaran terlihat jelas dan menampilkan
-                      informasi tanggal, nominal, dan rekening tujuan.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-2 rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 bg-zinc-50 dark:bg-zinc-900">
-              <h4 className="font-medium text-zinc-900 dark:text-zinc-50">
-                Perhatian:
-              </h4>
-              <ul className="list-disc list-inside text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
-                <li>Pastikan semua data yang Anda masukkan sudah benar</li>
-                <li>
-                  Pendaftaran akan diproses setelah pembayaran diverifikasi
-                </li>
-                <li>Proses verifikasi membutuhkan waktu maksimal 1x24 jam</li>
-                <li>
-                  Anda akan mendapatkan notifikasi melalui email setelah
-                  pendaftaran diverifikasi
-                </li>
-              </ul>
-            </div>
-          </>
-        )}
-
         <div className="flex justify-between pt-4 border-t border-zinc-200 dark:border-zinc-800">
           {step > 1 && (
             <Button type="button" variant="outline" onClick={prevStep}>
@@ -377,7 +339,7 @@ export function RegistrationFormEvent({ eventId, className }: RegistrationFormPr
             </Button>
           )}
 
-          {step < 3 ? (
+          {step < 2 ? (
             <Button type="button" className="ml-auto" onClick={nextStep}>
               Selanjutnya
             </Button>

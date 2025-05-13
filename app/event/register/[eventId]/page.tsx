@@ -33,7 +33,7 @@ export default async function RegisterPage({ params }: { params: { eventId: stri
 
                   <div className="border-t border-zinc-200 dark:border-zinc-800 my-4 pt-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-zinc-600 dark:text-zinc-400">Biaya Kelas</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">Biaya Event</span>
                       <span className="font-semibold text-zinc-900 dark:text-zinc-50">
                         {formatCurrency(eventItem.price)}
                       </span>
@@ -56,7 +56,7 @@ export default async function RegisterPage({ params }: { params: { eventId: stri
                     <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Petunjuk Pembayaran:</h3>
                     <ol className="list-decimal list-inside text-sm text-zinc-600 dark:text-zinc-400 space-y-2">
                       <li>
-                        Transfer biaya kelas ke rekening berikut:
+                        Transfer biaya event ke rekening berikut:
                         <div className="ml-5 mt-1">
                           <p>Bank BCA</p>
                           <p>No. Rek: 1011811944</p>
@@ -121,7 +121,7 @@ export default async function RegisterPage({ params }: { params: { eventId: stri
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Formulir Pendaftaran</h1>
                 <p className="text-zinc-500 dark:text-zinc-400 mt-1">
-                  Silakan lengkapi data diri Anda untuk mendaftar kelas {eventItem.title}
+                  Silakan lengkapi data diri Anda untuk mendaftar Event {eventItem.title}
                 </p>
               </div>
 
